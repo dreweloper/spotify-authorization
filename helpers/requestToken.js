@@ -1,7 +1,7 @@
 const fetch = require("node-fetch");
 const config = require("../config/config");
 
-const getTokenOptions = (code, refreshToken = undefined) => {
+const getTokenOptions = (code, refreshToken) => {
 
   const base64Auth = Buffer.from(`${process.env.CLIENT_ID}:${process.env.CLIENT_SECRET}`).toString("base64");
 
@@ -49,29 +49,21 @@ const requestToken = async (code, refreshToken) => {
 
     if (!response.ok) {
 
-      throw new Error("The request could not be completed successfully");
+      throw await response.json();
 
     } else {
 
       const data = await response.json();
 
-      return {
-        ok: true,
-        status: response.status,
-        data
-      };
+      return { ok: true, data };
 
     };
 
   } catch (error) {
 
-    console.error("Fetch error:", error.message);
+    console.error("Fetch error:", error);
 
-    return {
-      ok: false,
-      status: response.status,
-      error
-    };
+    return { ok: false, error };
 
   };
   

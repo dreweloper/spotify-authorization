@@ -1,3 +1,3 @@
-const validateStateParameter = require('./validateStateParameter');
+const handleAuthorizationCallback = require("./handleAuthorizationCallback");;
 
-module.exports = { validateStateParameter };
+module.exports = { handleAuthorizationCallback };
