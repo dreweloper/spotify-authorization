@@ -1,22 +1,22 @@
 const express = require("express");
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
 require("dotenv").config();
+const auth = require("./routes/auth");
 
 // Creates an Express application
 const app = express();
 
 // Middlewares
-app.use(cors());
-
-// Parse application/x-www-form-urlencoded
-app.use(express.urlencoded({ extended: false }));
-// Parse application/json
-app.use(express.json());
+app
+  .use(express.static(__dirname + "/public"))
+  .use(express.urlencoded({ extended: false }))
+  .use(express.json())
+  .use(cors())
+  .use(cookieParser());
 
 // Routes
-app.get("/", (req, res) => {
-  res.send("Hello, world!");
-});
+app.use("/", auth);
 
 // Error handling
 app.use((err, req, res, next) => {
