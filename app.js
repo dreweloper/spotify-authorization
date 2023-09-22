@@ -8,7 +8,6 @@ const app = express();
 
 // Middlewares
 app
-  .use(express.static(__dirname + "/public"))
   .use(express.urlencoded({ extended: false }))
   .use(express.json())
   .use(cors())
@@ -22,7 +21,7 @@ app.use((err, req, res, next) => {
 
   console.error(err);
 
-  res.redirect(303, "/?error=internal_server_error");
+  res.status(500).send(err);
   
 });
 

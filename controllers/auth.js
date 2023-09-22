@@ -26,22 +26,16 @@ const requestAccessToken = async (req, res) => {
     const code = req.query.code;
 
     try {
-        
-        res.clearCookie(config.stateKey);
 
         const response = await requestToken(code, null);
 
         if (response.ok) {
             
-            const { access_token, refresh_token } = response.data;
-
-            res.redirect(303, "/?" + querystring.stringify({ access_token, refresh_token }));
+            res.status(200).send(response.data);
         
         } else {
             
-            const { error, error_description } = response.error;
-
-            res.redirect(303, "/?" + querystring.stringify({ error, error_description }));
+            res.status(400).send(response.error);
         
         };
     
@@ -49,7 +43,7 @@ const requestAccessToken = async (req, res) => {
         
         console.error(error);
 
-        res.redirect(303, "/?error=internal_server_error");
+        res.status(500).send(error);
 
     };
 
@@ -65,15 +59,11 @@ const requestRefreshedAccessToken = async (req, res) => {
 
         if (response.ok) {
             
-            const { access_token } = response.data;
-
-            res.redirect(303, "/?" + querystring.stringify({ access_token }));
+            res.status(200).send(response.data);
         
         } else {
             
-            const { error, error_description } = response.error;
-
-            res.redirect(303, "/?" + querystring.stringify({ error, error_description }));
+            res.status(400).send(response.error);
         
         };
     
@@ -81,7 +71,7 @@ const requestRefreshedAccessToken = async (req, res) => {
         
         console.error(error);
 
-        res.redirect(303, "/?error=internal_server_error");
+        res.status(500).send(error);
     
     };
 
