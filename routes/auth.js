@@ -1,13 +1,17 @@
 const { Router } = require("express");
-const authControllers = require("../controllers/auth");
+const {
+    requestUserAuth,
+    requestAccessToken,
+    requestRefreshedAccessToken
+} = require("../controllers/auth");
 
 // Middleware and routing system
 const router = Router();
 
-router.get("/login", authControllers.requestUserAuth);
+router.get("/login", requestUserAuth);
 
-router.get("/access-token", authControllers.requestAccessToken);
+router.get("/access-token", requestAccessToken);
 
-router.get("/refresh-token", authControllers.requestRefreshedAccessToken);
+router.get("/refresh-token", requestRefreshedAccessToken);
 
 module.exports = router;
