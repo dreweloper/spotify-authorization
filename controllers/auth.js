@@ -1,47 +1,44 @@
 const querystring = require("querystring");
 const requestToken = require("../helpers/requestToken");
-const config = require("../config/config");
 const generateRandomString = require("../helpers/generateRandomString");
 
 const requestUserAuth = (req, res) => {
+
+    const { stateKey, scope, redirect_uri } = req.query;
     
     const state = generateRandomString(16);
 
-    res.cookie(config.stateKey, state);
+    res.cookie(stateKey, state, { sameSite: 'strict' });
+
+    const queryString = querystring.stringify({
+        response_type: "code",
+        client_id: process.env.CLIENT_ID,
+        scope,
+        redirect_uri,
+        state,
+        show_dialog: true,
+    });
 
     // App requests authorization
-    res.redirect("https://accounts.spotify.com/authorize?" + querystring.stringify({
-            response_type: "code",
-            client_id: process.env.CLIENT_ID,
-            scope: config.scope,
-            redirect_uri: config.redirect_uri,
-            state,
-            show_dialog: true,
-        })
-    );
+    res.redirect(`https://accounts.spotify.com/authorize?${queryString}`);
+
 };
 
 const requestAccessToken = async (req, res) => {
     
-    const code = req.query.code;
+    const { code, redirect_uri } = req.query;
 
     try {
-        
-        res.clearCookie(config.stateKey);
 
-        const response = await requestToken(code, null);
+        const response = await requestToken(code, null, redirect_uri);
 
         if (response.ok) {
             
-            const { access_token, refresh_token } = response.data;
-
-            res.redirect(303, "/?" + querystring.stringify({ access_token, refresh_token }));
+            res.status(200).send(response.data);
         
         } else {
             
-            const { error, error_description } = response.error;
-
-            res.redirect(303, "/?" + querystring.stringify({ error, error_description }));
+            res.status(400).send(response.error);
         
         };
     
@@ -49,7 +46,7 @@ const requestAccessToken = async (req, res) => {
         
         console.error(error);
 
-        res.redirect(303, "/?error=internal_server_error");
+        res.status(500).send(error);
 
     };
 
@@ -57,23 +54,19 @@ const requestAccessToken = async (req, res) => {
 
 const requestRefreshedAccessToken = async (req, res) => {
     
-    const refreshToken = req.query.refresh_token;
+    const { refresh_token } = req.query;
 
     try {
         
-        const response = await requestToken(null, refreshToken);
+        const response = await requestToken(null, refresh_token, null);
 
         if (response.ok) {
             
-            const { access_token } = response.data;
-
-            res.redirect(303, "/?" + querystring.stringify({ access_token }));
+            res.status(200).send(response.data);
         
         } else {
             
-            const { error, error_description } = response.error;
-
-            res.redirect(303, "/?" + querystring.stringify({ error, error_description }));
+            res.status(400).send(response.error);
         
         };
     
@@ -81,7 +74,7 @@ const requestRefreshedAccessToken = async (req, res) => {
         
         console.error(error);
 
-        res.redirect(303, "/?error=internal_server_error");
+        res.status(500).send(error);
     
     };
 

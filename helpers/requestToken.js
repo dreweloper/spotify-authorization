@@ -1,51 +1,13 @@
 const fetch = require("node-fetch");
-const config = require("../config/config");
+const getTokenOptions = require('./getTokenOptions');
 
-const getTokenOptions = (code, refreshToken) => {
+const requestToken = async (code, refresh_token, redirect_uri) => {
 
-  const base64Auth = Buffer.from(`${process.env.CLIENT_ID}:${process.env.CLIENT_SECRET}`).toString("base64");
-
-  const headers = {
-    Authorization: `Basic ${base64Auth}`,
-    "Content-Type": "application/x-www-form-urlencoded",
-  };
-
-  if (!refreshToken) {
-
-    return {
-      method: "POST",
-      body: new URLSearchParams({
-        grant_type: "authorization_code",
-        code,
-        redirect_uri: config.redirect_uri,
-      }),
-      headers,
-    };
-
-  } else {
-
-    return {
-      method: "POST",
-      body: new URLSearchParams({
-        grant_type: "refresh_token",
-        refresh_token: refreshToken,
-      }),
-      headers,
-    };
-
-  };
-
-};
-
-const requestToken = async (code, refreshToken) => {
-
-  const url = "https://accounts.spotify.com/api/token";
-
-  const options = getTokenOptions(code, refreshToken);
+  const options = getTokenOptions(code, refresh_token, redirect_uri);
 
   try {
 
-    const response = await fetch(url, options);
+    const response = await fetch("https://accounts.spotify.com/api/token", options);
 
     if (!response.ok) {
 
