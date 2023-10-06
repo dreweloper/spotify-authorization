@@ -1,14 +1,9 @@
 const querystring = require("querystring");
 const requestToken = require("../helpers/requestToken");
-const generateRandomString = require("../helpers/generateRandomString");
 
 const requestUserAuth = (req, res) => {
 
-    const { stateKey, scope, redirect_uri } = req.query;
-    
-    const state = generateRandomString(16);
-
-    res.cookie(stateKey, state, { sameSite: 'strict' });
+    const { redirect_uri, scope, state  } = req.query;
 
     const queryString = querystring.stringify({
         response_type: "code",
